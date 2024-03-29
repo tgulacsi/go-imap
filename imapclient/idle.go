@@ -72,6 +72,9 @@ func (cmd *IdleCommand) run(c *Client, child *idleCommand) {
 			if child, cmd.err = c.idle(); cmd.err != nil {
 				return
 			}
+		case <-c.decCh:
+			cmd.lastChild = child
+			return
 		case <-cmd.stop:
 			cmd.lastChild = child
 			return
