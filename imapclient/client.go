@@ -368,7 +368,7 @@ func (c *Client) Close() error {
 	c.mutex.Unlock()
 
 	// Ignore net.ErrClosed here, because we also call conn.Close in c.read
-	if err := c.conn.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+	if err := c.conn.Close(); err != nil && !errors.Is(err, net.ErrClosed) && !errors.Is(err, io.ErrClosedPipe) {
 		return err
 	}
 
@@ -574,7 +574,7 @@ func (c *Client) read() {
 	c.setReadTimeout(idleReadTimeout)
 	for {
 		// Ignore net.ErrClosed here, because we also call conn.Close in c.Close
-		if c.dec.EOF() || errors.Is(c.dec.Err(), net.ErrClosed) {
+		if c.dec.EOF() || errors.Is(c.dec.Err(), net.ErrClosed) || errors.Is(c.dec.Err(), io.ErrClosedPipe) {
 			break
 		}
 		if err := c.readResponse(); err != nil {
