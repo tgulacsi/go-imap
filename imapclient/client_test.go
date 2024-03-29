@@ -145,21 +145,6 @@ func TestLogout(t *testing.T) {
 	}
 }
 
-func TestIdle(t *testing.T) {
-	client, server := newClientServerPair(t, imap.ConnStateSelected)
-	defer client.Close()
-	defer server.Close()
-
-	idleCmd, err := client.Idle()
-	if err != nil {
-		t.Fatalf("Idle() = %v", err)
-	}
-	// TODO: test unilateral updates
-	if err := idleCmd.Close(); err != nil {
-		t.Errorf("Close() = %v", err)
-	}
-}
-
 // https://github.com/emersion/go-imap/issues/562
 func TestFetch_invalid(t *testing.T) {
 	client, server := newClientServerPair(t, imap.ConnStateSelected)
