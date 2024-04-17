@@ -153,11 +153,11 @@ func (enc *Encoder) Mailbox(name string) *Encoder {
 	if strings.EqualFold(name, "INBOX") {
 		return enc.Atom("INBOX")
 	} else {
-		utf7Enc := utf7.Encoding
 		if enc.QuotedUTF8 {
-			utf7Enc = utf7.AcceptUTF8Encoding
+			name = utf7.Escape(name)
+		} else {
+			name = utf7.Encode(name)
 		}
-		name, _ = utf7Enc.NewEncoder().String(name)
 		return enc.String(name)
 	}
 }

@@ -99,10 +99,8 @@ var decode = []struct {
 }
 
 func TestDecoder(t *testing.T) {
-	dec := utf7.Encoding.NewDecoder()
-
 	for _, test := range decode {
-		out, err := dec.String(test.in)
+		out, err := utf7.Decode(test.in)
 		if out != test.out {
 			t.Errorf("UTF7Decode(%+q) expected %+q; got %+q", test.in, test.out, out)
 		}

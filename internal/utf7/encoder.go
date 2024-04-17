@@ -1,23 +1,23 @@
 package utf7
 
 import (
+	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
-
-	"golang.org/x/text/transform"
 )
 
-type encoder struct{}
+// Encode encodes a string with modified UTF-7.
+func Encode(src string) string {
+	var sb strings.Builder
+	sb.Grow(len(src))
 
-func (e *encoder) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err error) {
 	for i := 0; i < len(src); {
 		ch := src[i]
 
-		var b []byte
 		if min <= ch && ch <= max {
-			b = []byte{ch}
+			sb.WriteByte(ch)
 			if ch == '&' {
-				b = append(b, '-')
+				sb.WriteByte('-')
 			}
 
 			i++
@@ -30,31 +30,12 @@ func (e *encoder) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err er
 				i++
 			}
 
-			if !atEOF && i == len(src) {
-				err = transform.ErrShortSrc
-				return
-			}
-
-			b = encode(src[start:i])
-		}
-
-		if nDst+len(b) > len(dst) {
-			err = transform.ErrShortDst
-			return
-		}
-
-		nSrc = i
-
-		for _, ch := range b {
-			dst[nDst] = ch
-			nDst++
+			sb.Write(encode([]byte(src[start:i])))
 		}
 	}
 
-	return
+	return sb.String()
 }
-
-func (e *encoder) Reset() {}
 
 // Converts string s from UTF-8 to UTF-16-BE, encodes the result as base64,
 // removes the padding, and adds UTF-7 shifts.
@@ -90,31 +71,18 @@ func encode(s []byte) []byte {
 	return b64
 }
 
-type escaper struct{}
+// Escape passes through raw UTF-8 as-is and escapes the special UTF-7 marker
+// (the ampersand character).
+func Escape(src string) string {
+	var sb strings.Builder
+	sb.Grow(len(src))
 
-func (e *escaper) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err error) {
-	for i := 0; i < len(src); {
-		ch := src[i]
-		i++
-
-		b := []byte{ch}
+	for _, ch := range src {
+		sb.WriteRune(ch)
 		if ch == '&' {
-			b = append(b, '-')
-		}
-
-		if nDst+len(b) > len(dst) {
-			return nDst, nSrc, transform.ErrShortDst
-		}
-
-		nSrc = i
-
-		for _, ch := range b {
-			dst[nDst] = ch
-			nDst++
+			sb.WriteByte('-')
 		}
 	}
 
-	return nDst, nSrc, nil
+	return sb.String()
 }
-
-func (e *escaper) Reset() {}

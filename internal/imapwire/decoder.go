@@ -502,7 +502,7 @@ func (dec *Decoder) ExpectMailbox(ptr *string) bool {
 		*ptr = "INBOX"
 		return true
 	}
-	name, err := utf7.Encoding.NewDecoder().String(name)
+	name, err := utf7.Decode(name)
 	if err == nil {
 		*ptr = name
 	}
