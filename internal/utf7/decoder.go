@@ -106,7 +106,7 @@ func decode(b64 []byte) []byte {
 				return nil
 			}
 			r2 := rune(b[i])<<8 | rune(b[i+1])
-			if r = utf16.DecodeRune(r, r2); r == repl {
+			if r = utf16.DecodeRune(r, r2); r == utf8.RuneError {
 				return nil
 			}
 		} else if min <= r && r <= max {

@@ -49,7 +49,7 @@ func encode(s []byte) []byte {
 			r, size = utf8.RuneError, 1 // Bug fix (issue 3785)
 		}
 		s = s[size:]
-		if r1, r2 := utf16.EncodeRune(r); r1 != repl {
+		if r1, r2 := utf16.EncodeRune(r); r1 != utf8.RuneError {
 			b = append(b, byte(r1>>8), byte(r1))
 			r = r2
 		}

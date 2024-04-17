@@ -8,8 +8,6 @@ import (
 const (
 	min = 0x20 // Minimum self-representing UTF-7 value
 	max = 0x7E // Maximum self-representing UTF-7 value
-
-	repl = '\uFFFD' // Unicode replacement code point
 )
 
 var b64Enc = base64.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,")
