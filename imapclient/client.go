@@ -392,12 +392,21 @@ func (c *Client) beginCommand(name string, cmd command) *commandEncoder {
 	c.encMutex.Lock() // unlocked by commandEncoder.end
 
 	c.mutex.Lock()
+
 	c.cmdTag++
 	tag := fmt.Sprintf("T%v", c.cmdTag)
+
+	baseCmd := cmd.base()
+	*baseCmd = Command{
+		tag:  tag,
+		done: make(chan error, 1),
+	}
+
 	c.pendingCmds = append(c.pendingCmds, cmd)
 	quotedUTF8 := c.caps.Has(imap.CapIMAP4rev2) || c.enabled.Has(imap.CapUTF8Accept)
 	literalMinus := c.caps.Has(imap.CapLiteralMinus)
 	literalPlus := c.caps.Has(imap.CapLiteralPlus)
+
 	c.mutex.Unlock()
 
 	c.setWriteTimeout(cmdWriteTimeout)
@@ -410,11 +419,6 @@ func (c *Client) beginCommand(name string, cmd command) *commandEncoder {
 		return c.registerContReq(cmd)
 	}
 
-	baseCmd := cmd.base()
-	*baseCmd = Command{
-		tag:  tag,
-		done: make(chan error, 1),
-	}
 	enc := &commandEncoder{
 		Encoder: wireEnc,
 		client:  c,
