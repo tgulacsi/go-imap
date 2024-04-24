@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/emersion/go-imap/v2"
@@ -86,7 +87,9 @@ func newClientServerPair(t *testing.T, initialState imap.ConnState) (*imapclient
 		conn, server = newMemClientServerPair(t)
 	}
 
-	debugWriter := struct{ io.Writer }{io.Discard}
+	var debugWriter swapWriter
+	debugWriter.Swap(io.Discard)
+
 	var options imapclient.Options
 	if testing.Verbose() {
 		options.DebugWriter = &debugWriter
@@ -114,9 +117,30 @@ func newClientServerPair(t *testing.T, initialState imap.ConnState) (*imapclient
 		}
 	}
 
-	debugWriter.Writer = os.Stderr
+	// Turn on debug logs after we're done initializing the test
+	debugWriter.Swap(os.Stderr)
 
 	return client, server
+}
+
+// swapWriter is an io.Writer which can be swapped at runtime.
+type swapWriter struct {
+	w     io.Writer
+	mutex sync.Mutex
+}
+
+func (sw *swapWriter) Write(b []byte) (int, error) {
+	sw.mutex.Lock()
+	w := sw.w
+	sw.mutex.Unlock()
+
+	return w.Write(b)
+}
+
+func (sw *swapWriter) Swap(w io.Writer) {
+	sw.mutex.Lock()
+	sw.w = w
+	sw.mutex.Unlock()
 }
 
 func TestLogin(t *testing.T) {
