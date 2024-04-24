@@ -31,10 +31,11 @@ func (c *Client) startTLS(config *tls.Config) error {
 
 	// The decoder goroutine will invoke Client.upgradeStartTLS
 	<-upgradeDone
-	return nil
+
+	return cmd.tlsConn.Handshake()
 }
 
-func (c *Client) upgradeStartTLS(tlsConfig *tls.Config) {
+func (c *Client) upgradeStartTLS(startTLS *startTLSCommand) {
 	// Drain buffered data from our bufio.Reader
 	var buf bytes.Buffer
 	if _, err := io.CopyN(&buf, c.br, int64(c.br.Buffered())); err != nil {
@@ -49,19 +50,24 @@ func (c *Client) upgradeStartTLS(tlsConfig *tls.Config) {
 		cleartextConn = c.conn
 	}
 
-	tlsConn := tls.Client(cleartextConn, tlsConfig)
+	tlsConn := tls.Client(cleartextConn, startTLS.tlsConfig)
 	rw := c.options.wrapReadWriter(tlsConn)
 
 	c.br.Reset(rw)
 	// Unfortunately we can't re-use the bufio.Writer here, it races with
 	// Client.StartTLS
 	c.bw = bufio.NewWriter(rw)
+
+	startTLS.tlsConn = tlsConn
+	close(startTLS.upgradeDone)
 }
 
 type startTLSCommand struct {
 	cmd
-	tlsConfig   *tls.Config
+	tlsConfig *tls.Config
+
 	upgradeDone chan<- struct{}
+	tlsConn     *tls.Conn
 }
 
 type startTLSConn struct {

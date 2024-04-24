@@ -634,8 +634,7 @@ func (c *Client) readResponse() error {
 	}
 
 	if startTLS != nil {
-		c.upgradeStartTLS(startTLS.tlsConfig)
-		close(startTLS.upgradeDone)
+		c.upgradeStartTLS(startTLS)
 	}
 
 	return nil
