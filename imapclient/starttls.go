@@ -35,6 +35,8 @@ func (c *Client) startTLS(config *tls.Config) error {
 	return cmd.tlsConn.Handshake()
 }
 
+// upgradeStartTLS finishes the STARTTLS upgrade after the server has sent an
+// OK response. It runs in the decoder goroutine.
 func (c *Client) upgradeStartTLS(startTLS *startTLSCommand) {
 	// Drain buffered data from our bufio.Reader
 	var buf bytes.Buffer
