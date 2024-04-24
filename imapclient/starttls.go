@@ -38,6 +38,8 @@ func (c *Client) startTLS(config *tls.Config) error {
 // upgradeStartTLS finishes the STARTTLS upgrade after the server has sent an
 // OK response. It runs in the decoder goroutine.
 func (c *Client) upgradeStartTLS(startTLS *startTLSCommand) {
+	defer close(startTLS.upgradeDone)
+
 	// Drain buffered data from our bufio.Reader
 	var buf bytes.Buffer
 	if _, err := io.CopyN(&buf, c.br, int64(c.br.Buffered())); err != nil {
@@ -61,7 +63,6 @@ func (c *Client) upgradeStartTLS(startTLS *startTLSCommand) {
 	c.bw = bufio.NewWriter(rw)
 
 	startTLS.tlsConn = tlsConn
-	close(startTLS.upgradeDone)
 }
 
 type startTLSCommand struct {
