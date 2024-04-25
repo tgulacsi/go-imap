@@ -575,7 +575,7 @@ func (c *Client) read() {
 		c.closeWithError(cmdErr)
 	}()
 
-	c.setReadTimeout(idleReadTimeout)
+	c.setReadTimeout(respReadTimeout) // We're waiting for the greeting
 	for {
 		// Ignore net.ErrClosed here, because we also call conn.Close in c.Close
 		if c.dec.EOF() || errors.Is(c.dec.Err(), net.ErrClosed) || errors.Is(c.dec.Err(), io.ErrClosedPipe) {
