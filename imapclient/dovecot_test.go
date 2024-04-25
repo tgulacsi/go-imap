@@ -17,6 +17,12 @@ func newDovecotClientServerPair(t *testing.T) (net.Conn, io.Closer) {
 ssl           = no
 mail_home     = "` + tempDir + `/%u"
 mail_location = maildir:~/Mail
+
+namespace inbox {
+	separator = /
+	prefix =
+	inbox = yes
+}
 `
 	if err := os.WriteFile(cfgFilename, []byte(cfg), 0666); err != nil {
 		t.Fatalf("failed to write Dovecot config: %v", err)
