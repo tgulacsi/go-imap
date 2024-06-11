@@ -907,6 +907,8 @@ func (c *Client) readResponseData(typ string) error {
 			}
 			close(c.greetingCh)
 		}
+	case "ID":
+		return c.handleID()
 	case "CAPABILITY":
 		return c.handleCapability()
 	case "ENABLED":
