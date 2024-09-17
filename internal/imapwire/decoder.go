@@ -26,6 +26,11 @@ func IsAtomChar(ch byte) bool {
 	}
 }
 
+// Is non-empty char
+func isAStringChar(ch byte) bool {
+	return IsAtomChar(ch) || ch == ']'
+}
+
 // DecoderExpectError is an error due to the Decoder.Expect family of methods.
 type DecoderExpectError struct {
 	Message string
@@ -399,8 +404,9 @@ func (dec *Decoder) ExpectAString(ptr *string) bool {
 	if dec.Literal(ptr) {
 		return true
 	}
-	// TODO: accept unquoted resp-specials
-	return dec.ExpectAtom(ptr)
+	// We cannot do dec.Atom(ptr) here because sometimes mailbox names are unquoted,
+	// and they can contain special characters like `]`.
+	return dec.Expect(dec.Func(ptr, isAStringChar), "ASTRING-CHAR")
 }
 
 func (dec *Decoder) String(ptr *string) bool {
