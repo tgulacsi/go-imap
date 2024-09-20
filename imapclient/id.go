@@ -154,10 +154,10 @@ func (c *Client) readID(dec *imapwire.Decoder) (*imap.IDData, error) {
 }
 
 type IDCommand struct {
-	cmd
+	commandBase
 	data imap.IDData
 }
 
 func (r *IDCommand) Wait() (*imap.IDData, error) {
-	return &r.data, r.cmd.Wait()
+	return &r.data, r.wait()
 }

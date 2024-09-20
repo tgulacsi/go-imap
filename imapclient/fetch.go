@@ -148,7 +148,7 @@ func writeSectionPartial(enc *imapwire.Encoder, partial *imap.SectionPartial) {
 
 // FetchCommand is a FETCH command.
 type FetchCommand struct {
-	cmd
+	commandBase
 
 	numSet     imap.NumSet
 	recvSeqSet imap.SeqSet
@@ -206,7 +206,7 @@ func (cmd *FetchCommand) Close() error {
 	for cmd.Next() != nil {
 		// ignore
 	}
-	return cmd.cmd.Wait()
+	return cmd.wait()
 }
 
 // Collect accumulates message data into a list.

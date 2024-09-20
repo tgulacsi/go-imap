@@ -33,11 +33,11 @@ func (c *Client) SetACL(mailbox string, ri imap.RightsIdentifier, rm imap.RightM
 
 // SetACLCommand is a SETACL command.
 type SetACLCommand struct {
-	cmd
+	commandBase
 }
 
 func (cmd *SetACLCommand) Wait() error {
-	return cmd.cmd.Wait()
+	return cmd.wait()
 }
 
 // GetACL sends a GETACL command.
@@ -53,12 +53,12 @@ func (c *Client) GetACL(mailbox string) *GetACLCommand {
 
 // GetACLCommand is a GETACL command.
 type GetACLCommand struct {
-	cmd
+	commandBase
 	data GetACLData
 }
 
 func (cmd *GetACLCommand) Wait() (*GetACLData, error) {
-	return &cmd.data, cmd.cmd.Wait()
+	return &cmd.data, cmd.wait()
 }
 
 func (c *Client) handleMyRights() error {
@@ -85,12 +85,12 @@ func (c *Client) handleGetACL() error {
 
 // MyRightsCommand is a MYRIGHTS command.
 type MyRightsCommand struct {
-	cmd
+	commandBase
 	data MyRightsData
 }
 
 func (cmd *MyRightsCommand) Wait() (*MyRightsData, error) {
-	return &cmd.data, cmd.cmd.Wait()
+	return &cmd.data, cmd.wait()
 }
 
 // MyRightsData is the data returned by the MYRIGHTS command.

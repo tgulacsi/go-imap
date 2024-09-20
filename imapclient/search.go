@@ -148,12 +148,12 @@ func (c *Client) handleESearch() error {
 
 // SearchCommand is a SEARCH command.
 type SearchCommand struct {
-	cmd
+	commandBase
 	data imap.SearchData
 }
 
 func (cmd *SearchCommand) Wait() (*imap.SearchData, error) {
-	return &cmd.data, cmd.cmd.Wait()
+	return &cmd.data, cmd.wait()
 }
 
 func writeSearchKey(enc *imapwire.Encoder, criteria *imap.SearchCriteria) {

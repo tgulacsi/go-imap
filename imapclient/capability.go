@@ -28,12 +28,12 @@ func (c *Client) handleCapability() error {
 
 // CapabilityCommand is a CAPABILITY command.
 type CapabilityCommand struct {
-	cmd
+	commandBase
 	caps imap.CapSet
 }
 
 func (cmd *CapabilityCommand) Wait() (imap.CapSet, error) {
-	err := cmd.cmd.Wait()
+	err := cmd.wait()
 	return cmd.caps, err
 }
 
