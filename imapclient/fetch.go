@@ -313,6 +313,8 @@ var (
 )
 
 // FetchItemDataBodySection holds data returned by FETCH BODY[].
+//
+// Literal might be nil.
 type FetchItemDataBodySection struct {
 	Section *imap.FetchItemBodySection
 	Literal imap.LiteralReader
@@ -321,10 +323,14 @@ type FetchItemDataBodySection struct {
 func (FetchItemDataBodySection) fetchItemData() {}
 
 func (item FetchItemDataBodySection) discard() {
-	io.Copy(io.Discard, item.Literal)
+	if item.Literal != nil {
+		io.Copy(io.Discard, item.Literal)
+	}
 }
 
 // FetchItemDataBinarySection holds data returned by FETCH BINARY[].
+//
+// Literal might be nil.
 type FetchItemDataBinarySection struct {
 	Section *imap.FetchItemBinarySection
 	Literal imap.LiteralReader
@@ -333,7 +339,9 @@ type FetchItemDataBinarySection struct {
 func (FetchItemDataBinarySection) fetchItemData() {}
 
 func (item FetchItemDataBinarySection) discard() {
-	io.Copy(io.Discard, item.Literal)
+	if item.Literal != nil {
+		io.Copy(io.Discard, item.Literal)
+	}
 }
 
 // FetchItemDataFlags holds data returned by FETCH FLAGS.
@@ -417,18 +425,26 @@ type FetchMessageBuffer struct {
 func (buf *FetchMessageBuffer) populateItemData(item FetchItemData) error {
 	switch item := item.(type) {
 	case FetchItemDataBodySection:
-		b, err := io.ReadAll(item.Literal)
-		if err != nil {
-			return err
+		var b []byte
+		if item.Literal != nil {
+			var err error
+			b, err = io.ReadAll(item.Literal)
+			if err != nil {
+				return err
+			}
 		}
 		if buf.BodySection == nil {
 			buf.BodySection = make(map[*imap.FetchItemBodySection][]byte)
 		}
 		buf.BodySection[item.Section] = b
 	case FetchItemDataBinarySection:
-		b, err := io.ReadAll(item.Literal)
-		if err != nil {
-			return err
+		var b []byte
+		if item.Literal != nil {
+			var err error
+			b, err = io.ReadAll(item.Literal)
+			if err != nil {
+				return err
+			}
 		}
 		if buf.BinarySection == nil {
 			buf.BinarySection = make(map[*imap.FetchItemBinarySection][]byte)
