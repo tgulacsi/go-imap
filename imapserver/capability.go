@@ -75,6 +75,7 @@ func (c *Conn) availableCaps() []imap.Cap {
 				imap.CapMove,
 				imap.CapStatusSize,
 				imap.CapBinary,
+				imap.CapSort,
 			})
 		}
 		addAvailableCaps(&caps, available, []imap.Cap{
